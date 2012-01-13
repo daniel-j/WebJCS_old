@@ -1,0 +1,52 @@
+This level editor is called WebJCS, because the original editor is called Jazz Creation Station (JCS). WebJCS is an open-source improved clone of JCS, running in your web browser (only Google Chrome is supported at the moment). JCS is included with the game Jazz Jackrabbit 2 that was released in 1998 by Epic MegaGames (or Epic Games as it’s known today).
+
+I started this project in 2007-2008, using simple <img>s, <div>s, PHP and JS code. Today with <canvas>, rendering is a breeze, and JavaScript engines have become a whole lot faster.
+
+This improved clone is, without any reused code, fully compatible with the game. To run the levels you create, you need the game, as I have not yet made a HTML5 version of it.
+
+WebJCS requires to be hosted from a server, as browser JavaScript don’t have access to the local filesystem or native modules such as Zlib.
+The code behind WebJCS is written entirely by me, except FileSaver.js, Node.JS and some node modules.
+
+You can try it out live on my hosted collaborative server here: http://djazz.mine.nu:8010/
+Download WebJCS for offline usage from this site: http://www.jazz2online.com/downloads/6796/webjcs/
+See a video of it here http://www.youtube.com/watch?v=ksVPCN9XxAc and here http://www.youtube.com/watch?v=zwpZVtzSLPs
+
+How do I install WebJCS?
+Firstly, install Google Chrome. It’s the only browser good enough for handling demanding graphics and it’s very fast. If other browsers catch up, I might add support for them to.
+Windows:
+Unzip it in any folder, not necessarily in your Jazz2 folder.
+Download Node.JS (if not included in the zip) HERE and put it inside the folder you unzipped to.
+Edit the file settings.ini to match your configuration, such as path to Jazz2 folder for finding level/tilesets, command to run when you want to Run your level and the path to your Google Chrome install.
+Then make a shortcut to the WebJCS.bat file, as you would do with any program/file you want a shortcut to.
+Linux:
+Unzip it in any folder.
+First you must compile node.js.
+Edit the file settings.ini to match your configuration, such as path to a folder for finding level/tilesets, command to run when you want to Run your level and the path to your Google Chrome install.
+When entering a path to JJ2, it have to be an absolute path. The default JJ2 path for wine is:
+/home/username/.wine/drive_c/Games/Jazz2/
+The command for Chrome is google-chrome.
+Create a launcher with the command “node path-to-server.js”, choose “open in terminal”
+
+Changelog
+v1.3.1
+Bugfixes
+Improved connection to the server when collaborating (pure WebSockets).
+Improving level saving and tilecache previewing (no Reworder yet).
+Passwording of collaboration servers.
+
+v1.3.0
+Improved in-game preview in the Parallax View: Animations, physics and ambient lighting.
+
+v1.2.1
+Added collaboration
+Added chat panel
+You can see other user’s cursors
+Added undo/redo functionality
+Fixed bugs
+
+v1.0.1:
+Fixed bug with layer x-repeat and layer widths.
+Improved About-dialog.
+Minor event-names changes.
+Multicolored Warp-lines. Gradient from green to red.
+You can pan in the layer-view by holding the scrollwheel.
