@@ -1,0 +1,59 @@
+#contextmenuStorage {
+	display: none;
+	position: absolute;
+	top: 0px;
+	width: 100%;
+}
+.contextmenu {
+	position: absolute;
+	top: 10px;
+	left: 10px;
+	cursor: default;
+	display: none;
+}
+.contextmenu > ul {
+	width: 100%;
+}
+.contextmenu > ul ul {
+	left: 100%;
+	top: 0px;
+	position: absolute;
+	display: none;
+	width: 100%;
+}
+.contextmenu > ul li:hover > ul {
+	display: block;
+}
+.contextmenu li {
+	position: relative;
+	margin: 0px;
+	padding: 0px;
+}
+/* Design below */
+.contextmenu ul {
+	background: #F9F9F9;
+	padding: 0px;
+	margin: 0px;
+	list-style-type: none;
+	box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.3);
+	border: 1px solid #666;
+}
+.contextmenu li > hr {
+	margin: 2px 0px;
+	border: none;
+	border-bottom: 1px solid #666;
+}
+.contextmenu li > div {
+	padding: 2px 17px 2px 25px;
+}
+.contextmenu li {
+	color: #333;
+}
+.contextmenu li:hover {
+	background-color: #69F;
+	color: white;
+}
+.contextmenu li.disabled {
+	color: #BBB;
+	background-color: transparent;
+}

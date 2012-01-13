@@ -1,0 +1,100 @@
+#menubar {
+	cursor: default;
+	color: #444;
+	height: 20px;
+	border-bottom: 1px solid #AAA;
+	background-color: #CCC;
+	background: -webkit-gradient(linear, left top, left bottom, from(#EEE), to(#CCC));
+	background: -moz-linear-gradient(#EEE, #CCC);
+}
+#menubar ul {
+	list-style-type: none;
+	padding: 0px;
+	margin: 0px;
+}
+#menubar > ul {
+	
+}
+#menubar > ul > li {
+	float: left;
+	height: 19px;
+	padding: 0px 0px;
+}
+#menubar > ul > li > div {
+	padding: 0px 6px;
+	padding-top: 2px;
+	text-shadow: 0px 1px 0px #EEE;
+}
+#menubar > ul > li > .selected {
+	padding: 0px 5px;
+	border: 1px solid #AAA;
+	background-color: #EEE;
+	background: -webkit-gradient(linear, left top, left bottom, from(#FFF), to(#EEE));
+	background: -moz-linear-gradient(#FFF, #EEE);
+	margin-top: 1px;
+	border-bottom: none;
+	height: 100%;
+	-webkit-border-radius: 3px 3px 0px 0px;
+	-moz-border-radius: 3px 3px 0px 0px;
+	text-shadow: 0px 1px 0px #DDD;
+	-webkit-box-shadow: 0px 0px 1px #AAA;
+	-moz-box-shadow: 0px 0px 1px #AAA;
+}
+#menubar > ul > li > ul {
+	position: absolute;
+	z-index: 2;
+	min-width: 100px;
+	background-color: #EEE;
+	background: -webkit-gradient(linear, left top, left bottom, from(#EEE), to(#FFF));
+	background: -moz-linear-gradient(#EEE, #FFF);
+	border: 1px solid #AAA;
+	border-top: none;
+	display: none;
+	-webkit-box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+	-moz-box-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
+	padding: 4px 0px;
+	-webkit-border-radius: 0px 0px 3px 3px;
+	-moz-border-radius: 0px 0px 3px 3px;
+	min-width: 180px;
+}
+#menubar > ul > li > ul > li {
+	text-shadow: 0px 1px 0px #FFF;
+	color: #444;
+	padding-top: 2px;
+	padding-bottom: 2px;
+}
+#menubar > ul > li > ul > li > a {
+	display: block;
+	padding-left: 22px;
+	padding-right: 6px;
+	text-decoration: none;
+	cursor: default;
+	color: inherit;
+	height: 18px;
+}
+#menubar > ul > li > ul > li:hover {
+	background-color: #09F;
+	background: -webkit-gradient(linear, left top, left bottom, from(#0EF), to(#09F));
+	background: -moz-linear-gradient(#0EF, #09F);
+	padding-top: 1px;
+	padding-bottom: 1px;
+	border-top: 1px solid #0BF;
+	border-bottom: 1px solid #0CF;
+	color: white;
+	text-shadow: 0px 1px 0px #09F;
+}
+#menubar > ul > li > ul > li.line, #menubar > ul > li > ul > li.line:hover {
+	height: 0px;
+	padding: 0px;
+	border: none;
+	border-bottom: 1px solid #AAA;
+	margin: 4px 0px;
+}
+#menubar > ul > li > ul > li.disabled, #menubar > ul > li > ul > li.disabled:hover {
+	color: #999;
+	text-shadow: 0px 1px 0px #EEE;
+	background: none;
+	border: none;
+	padding-top: 2px;
+	padding-bottom: 2px;
+}

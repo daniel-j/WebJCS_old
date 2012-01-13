@@ -1,0 +1,73 @@
+#colorpickeroverlay {
+	height: 100%;
+	width: 100%;
+	position: absolute;
+	top: 0px;
+	left: 0px;
+	background-color: rgba(0, 0, 0, 0.2);
+	background: -webkit-gradient(linear, left top, left bottom, from(rgba(0, 0, 0, 0.4)), to(rgba(0, 0, 0, 0.2)));
+	z-index: 1000;
+	opacity: 0;
+	-webkit-transition: opacity .5s ease-in-out;
+	visibility: hidden;
+}
+
+#colorpicker {
+	position: absolute;
+	top: 100px;
+	left: 0px;
+	z-index: 1000;
+	box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.25);
+	border-radius: 0px 0px 4px 4px;
+	border: 4px solid rgba(200, 227, 255, 0.4);
+	-webkit-transition: top .5s ease-in-out;
+	visibility: hidden;
+	border-top: none;
+}
+
+#colorpicker canvas {
+	position: relative;
+	display: block;
+	cursor: default;
+	background-color: #EEE;
+}
+
+#colorpicker #colorcodeField {
+	position: absolute;
+	top: 345px;
+	left: 420px;
+	border: 1px solid #AAA;
+}
+
+#colorpicker #buttonRow {
+	background-color: #DDD;
+	background: -webkit-gradient(linear, left top, left bottom, from(#DDD), to(#BBB));
+	border-top: 1px solid #CCC;
+	padding: 2px;
+	text-align: center;
+}
+#colorpicker #buttonRow button {
+	width: 60px;
+	margin: 2px;
+}
+
+.pickColor > .pickColorPreview {
+	width: 20px;
+	height: 20px;
+	background: red;
+	border: 1px solid #333;
+	margin: 0px;
+	cursor: pointer;
+	border-radius: 2px;
+}
+.pickColor > .pickColorPreview:hover {
+	border-color: #666;
+}
+
+.pickColor > .pickColorInput {
+	display: inline-block;
+	font-size: 14px;
+	padding: 0px 3px;
+	cursor: default;
+}
+

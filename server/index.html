@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+	<title>Jazz Creation Station</title>
+	<link rel="stylesheet" href="menubar.css">
+	<link rel="stylesheet" href="popup.css">
+	<link rel="stylesheet" href="colorpicker.css">
+	<link rel="stylesheet" href="contextmenu.css">
+	<link rel="stylesheet" href="style.css">
+	<link rel="icon" href="media/icons/JCS.ico">
+</head>
+<body>
+
+<!-- App -->
+<div id="app">
+	<div>
+		<nav id="menubar"></nav>
+		<div id="infobar">
+			<span id="eventInfoSpan"></span> &nbsp;
+			<span id="tilePositionDiv"></span> &nbsp;
+			<span id="fpsSpan" style="opacity: 1;">0</span> fps
+		</div>
+	</div>
+	<section id="mainsection">
+		<section id="leftpanel">
+			<nav class="toolbar">
+				<table width=100% cellspacing=0 cellpadding=0><tr>
+					<td width=1><b>Tileset&nbsp;</b></td>
+					<td><select id="selectTileset" disabled>
+						<option value="">&laquo; No Tileset &raquo;</option>
+					</select></td>
+					<!--<td width=1><input type=button value="Set" id="buildTileset"></td>-->
+					<td width=1>
+					<select id="tilesetType">
+						<option>(none)</option>
+						<option>Mask</option>
+						<option selected>Tile Type</option>
+						<option>Events</option>
+					</select>
+					</td>
+				</tr></table>
+			</nav>
+			<div id="tilesetdiv" style="height: 0px;">
+				<canvas id="tilesetcanvas" width=337 height=1></canvas>
+			</div>
+			<nav class="toolbar">
+				<table width=100% cellspacing=0 cellpadding=0><tr>
+					<td id="animsdrag"><b>Animations</b></td>
+					<td width=1><button id="moveAnimUp"><b>/\</b></button></td>
+					<td width=21><button id="moveAnimDown"><b>\/</b></button></td>
+					<td width=1><button id="toggleAnimMask">Mask</button></td>
+				</tr></table>
+			</nav>
+			<div id="animsdiv" style="height: 0px;">
+				<canvas id="animscanvas" width=337 height=1></canvas>
+			</div>
+		</section>
+		<section id="content">
+			<nav class="toolbar">
+				<table width=100% height=100% cellspacing=0 cellpadding=0 border=0><tr>
+					<td><b id="toolbarLayerName">Layers</b></td>
+					<td width=1><span id="zoomlevel">100%</span>&nbsp;</td>
+					<td width=1><button id="zoomin" class="zoom"><b>+</b></button></td><td width=21><button id="zoomout" class="zoom"><b>-</b></button></td>
+					<td width=1><button id="layerpropertiesbutton"><img src="media/icons/Layer-Properties.png"></button></td>
+					<td width=163 align=center><span id="layerbuttons"><input type=button value=1><input type=button value=2><input type=button value=3><input type=button value=4><input type=button value=5><input type=button value=6><input type=button value=7><input type=button value=8></span></td>
+					<td width=21><button id="clearLayerButton"><b>x</b></button></td>
+					<td width=1><button id="toggleMask">Mask</button></td><td width=1><button id="toggleEvents" class="selected">Events</button></td>
+				</tr></table>
+			</nav>
+			<div id="layerdiv" style="height: 0px;">
+				<canvas id="layercanvas" height=1></canvas>
+			</div>
+			<nav class="toolbar">
+				<table width=100% height=100% cellspacing=0 cellpadding=0><tr>
+					<td id="parallaxdrag"><b>Parallax view</b></td>
+					<td width=1 valign=top id="animProgress"></td>
+					<td width=1 valign=top id="pxLightOutput">100</td>
+					<td width=1 valign=top><input type=range min=0 max=100 step=1 value=100 id="parallaxLight"></td>
+					<td width=1 valign=top><button id="toggleParallaxEvents" class="selected">Events</button></td>
+				</tr></table>
+			</nav>
+			<div id="parallaxdiv" style="height: 0px; position: relative;">
+				<canvas id="texturedCanvas" style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"></canvas>
+				<div id="texturedGradient" style="position: absolute; top: 0px; left: 0px; width: 100%; height: 100%;"></div>
+				<canvas id="parallaxcanvas" height=1 style="position: absolute;"></canvas>
+			</div>
+		</section>
+		<div id="chatPanel">
+			<div id="chatResizer"></div>
+			<form name="chatform" id="chatform" onsubmit="return false">
+				<div id="chatUserlistDiv">
+					<div id="chatUserlist"></div>
+					<div id="ping"><div id="pingval"></div></div>
+				</div>
+				<div id="chatContent"></div>
+				<div id="chatControls">
+					<input type=text id="chatInput">
+					<input type=submit value="Send" id="chatSend">
+				</div>
+			</form>
+		</div>
+	</section>
+</div>
+
+
+<!-- Popups -->
+<form name='settingsform'>
+<div id='settingspopup'>
+	<table width=100% height=100% cellspacing=0 cellpadding=2 border=0>
+		<tr><th colspan=2 align=center>Settings</td></tr>
+		<tr><td align=right>Light background: </td><td><div id="lightBgColorPicker" class="pickColor" resetColor="rgb(72, 48, 168)">rgb(72, 48, 168)</div></td></tr>
+		<tr><td align=right>Dark background: </td><td><div id="darkBgColorPicker" class="pickColor" resetColor="rgb(32, 24, 80)">rgb(32, 24, 80)</div></td></tr>
+		<tr><td align=center colspan=2><input type=button class="onoff" id="toggleTileCache" value="Tile-Cache"><input type=button class="onoff" id="toggleEventLinks" value="Warp lines"></td></tr>
+		<tr><td colspan=2></td></tr>
+		<tr><td colspan=2 height=1 class="buttonRow"><input type=button onclick="hidePopup()" value="  Close  ">
+	</table>
+</div>
+</form>
+
+<form name="openlevelform" enctype="multipart/form-data">
+<div id='openlevel'>
+	<table width=100% height=100% cellspacing=0 cellpadding=0 border=0>
+	<tr>
+		<th colspan=2 height=1 align=center>Open level</th>
+	</tr><tr>
+		<td height=1 width=1><input type=radio name="openlevelradio" id="openlevelradioFile"></td><td><label for="openlevelradioFile">Select&nbsp;a&nbsp;J2L&nbsp;level:&nbsp;<input type="file" id="openfieldlevel"></label></td>
+	</tr><tr>
+		<td height=1><input type=radio name="openlevelradio" id="openlevelradioList" checked></td><td><label for="openlevelradioList">Select a saved level:</label></td>
+	</tr><tr>
+		<td colspan=2 style="padding: 4px;">
+			<select size=2 id="levellist">
+				
+			</select>
+		</td>
+	</tr><tr>
+		<td colspan=2 height=1 class="buttonRow">
+			<input type=button value="Open" onclick="if(document.getElementById('openlevelradioFile').checked) hidePopup(1); else hidePopup(2);">
+			<input type=button value="Cancel" onclick="hidePopup();">
+		</td>
+	</tr>
+	</table>
+</div>
+</form>
+<form id='opentilesetform'>
+<div id='opentileset'>
+	<table width=100% height=100% cellspacing=0 cellpadding=5 border=0>
+		<tr><th colspan=2 align=center>Add tilesets</th></tr>
+		<tr><td align=right>Select a J2T tileset:</td><td><input type="file" id="openfieldtileset" multiple></td></tr>
+		<tr><td colspan=2 class="buttonRow"><input type=button value="Open" onclick="hidePopup(document.getElementById('openfieldtileset'));"> <input type=button value="Cancel" onclick="hidePopup();"></td></tr>
+	</table>
+</div>
+</form>
+
+<form name='levelpropertiesform'>
+<div id='levelproperties'>
+	<table height=100% cellspacing=0 cellpadding=1>
+		<tr><th colspan=3 align=center>Level Properties</th><td rowspan=12 valign=top style="padding: 0px;">
+			<div id="helpstrings">
+				<table height=100% width=100%>
+					<tr><td height=1 width=1>
+						ID: </td><td width=1><select name="helpStringSelect">
+							<option>0</option>
+							<option>1</option>
+							<option>2</option>
+							<option>3</option>
+							<option>4</option>
+							<option>5</option>
+							<option>6</option>
+							<option>7</option>
+							<option>8</option>
+							<option>9</option>
+							<option>10</option>
+							<option>11</option>
+							<option>12</option>
+							<option>13</option>
+							<option>14</option>
+							<option>15</option>
+						</select>
+					</td><td align=left id="helpStringKeys">
+						Insert: 
+					</td><td align=right>
+						<span id="helpStringCharCount">0</span> of 512 characters are used
+					</td></tr>
+					<tr><td valign=top colspan=4>
+						<div id="helpStringPreviewDiv">
+							<canvas id="helpStringPreviewCanvas" height=1 width=1></canvas>
+						</div>
+					</td></tr>
+					<tr><td valign=bottom height=1 colspan=4>
+						<textarea wrap=off name="helpStringEditor"></textarea>
+					</td></tr>
+				</table>
+			</div>
+		</td></tr>
+		<tr><td align=right width=95>Level name:</td><td><input type=text name="leveltitle" maxlength=32></td></tr>
+		<tr><td align=right>Next level:</td><td><input type=text name="nextlevel" maxlength=32></td></tr>
+		<tr><td align=right>Secret level:</td><td><input type=text name="secretlevel" maxlength=32></td></tr>
+		<tr><td align=right>Bonus level:</td><td><input type=text name="bonuslevel" maxlength=32></td></tr>
+		<tr><td align=right>Music:</td><td><input type=text name="musicfile" maxlength=32></td></tr>
+		<tr><td align=right>Minimum light:</td><td><input type=range min=0 max=127 step="1.5625" value=100 id="minlightslider" name="minlightslider"> <input type=number min=0 max=127 value=100 step="1" size=4 id="minlightnumber" name="minlightnumber"></td></tr>
+		<tr><td align=right>Start light:</td><td><input type=range min=0 max=127 step="1.5625" value=100 id="startlightslider" name="startlightslider"> <input type=number min=0 max=127 value=100 step="1" size=4 id="startlightnumber" name="startlightnumber"></td></tr>
+		<tr><td align=right>Splitscreen:</td><td><input type=radio checked name="splitscreenradio" id="splitscreenradioH"><label for="splitscreenradioH"> Horizontal</label> <input type=radio name="splitscreenradio" id="splitscreenradioV"><label for="splitscreenradioV">Vertical</label></td></tr>
+		<tr><td colspan=2 align=center><input type=button class="onoff" name="isMultiplayer" value="Battle, Treasure or CTF level"><br><input type=button class="onoff" name="hideLevel" value="Hide level in Home Cooked Levels list"></td></tr>
+		<tr><td colspan=2 align=center valign=bottom class="buttonRow"><input type=button value="OK" onclick="hidePopup(true);"><input type=button value="Cancel" onclick="hidePopup();"></td></tr>
+	</table>
+</div>
+</form>
+
+<div id='about'>
+	<table width=640 cellpadding=5 cellspacing=0>
+	<tr>
+		<td valign=top width=1><img src="media/icons/JCS.png"></td>
+		<td valign=top>
+		<b>About Jazz Creation Station (WebJCS) v1.3.1</b><br>
+		<br>
+		The original JCS was written by <a href="http://www.facebook.com/mvdleeuw" target="_blank">Michiel van der Leeuw</a> for <a href="http://epicgames.com/" target="_blank">Epic (Mega)Games</a> during 1996-1998<br><br>
+		WebJCS is written by Daniel J (<a href="http://www.jazz2online.com/user/7540/djazz/" target="_blank">DJazz</a>) during 2009-2011<br>
+		Contact me: <a href="http://www.jazz2online.com/user/emailUser.php?userID=7540" target="_blank">E-mail</a>,
+		<a href="http://djazz.mine.nu/" target="_blank">website</a>
+		<br>
+		<br>
+		WebJCS is an improved open-source clone of <a href="http://www.jazz2online.com/10/jazz-creation-station-index/" target="_blank">JCS</a>,
+		running in your web browser. The code behind WebJCS is written entirely by me,
+		with the exceptions for <a href="http://eligrey.com/demos/FileSaver.js/" target="_blank">FileSaver.js</a>, <a href="http://nodejs.org/" target="_blank">Node.JS</a> and some node modules.<br>
+		Big thanks to the <a href="http://www.jazz2online.com/wiki/index.php?J2L_File_Format" target="_blank">J2L</a>
+		and <a href="http://www.jazz2online.com/wiki/index.php?J2L_File_Format" target="_blank">J2T</a> file format specifications,
+		that was originally made by <a href="http://www.jazz2online.com/jcf/member.php?u=810" target="_blank">Neobeo</a>!
+		<br>
+		<br>
+		HTML5 ftw.
+	</td></tr>
+	<tr><td class="buttonRow" colspan=2>
+		<input type=button value="Close" onclick="hidePopup();">
+	</td></tr>
+	</table>
+</div>
+<div id='loadinglevel'>
+	<table>
+		<tr><th align=center><img src="media/icons/loading.gif"> Loading level...</th></tr>
+		<tr><td align=center><div class='progress'><div id='levelloadingprogress'></div></div></td></tr>
+		<tr><td align=center><span id='loadlevelname'></span></td></tr>
+	</table>
+</div>
+<div id='loadingtileset'>
+	<table>
+		<tr><th align=center><img src="media/icons/loading.gif"> Loading tileset...</th></tr>
+		<tr><td align=center><div class='progress'><div id='tilesetloadingprogress'></div></div></td></tr>
+		<tr><td align=center><span id='loadtilesetname'></span></td></tr>
+	</table>
+</div>
+<div id='saving'>
+	<table>
+		<tr><th align=center><img src="media/icons/loading.gif"> Saving level...</th></tr>
+		<tr><td align=center><div class='progress'><div id='savingprogress'></div></div></td></tr>
+		<tr><td align=center><span id='savinglevelname'></span></td></tr>
+	</table>
+</div>
+<form name='layerpropertiesform'>
+<div id='layerproperties'>
+	<table cellspacing=0>
+		<tr><th colspan=4 align=center>Layer properties</th></tr>
+		<tr><td align=right>Layer:</td><td colspan=3><select name="editlayer">
+			
+		</select></td></tr>
+		<tr><td align=right>X-speed:</td><td><input type=number name="xspeed" step=0.1 value=0 max=32767 min=-32767></td><td align=right>Auto X-speed:</td><td><input type=number name="autoxspeed" step=0.1 value=0 max=32767 min=-32767></td></tr>
+		<tr><td align=right>Y-speed:</td><td><input type=number name="yspeed" step=0.1 value=0 max=32767 min=-32767></td><td align=right>Auto Y-speed:</td><td><input type=number name="autoyspeed" step=0.1 value=0 max=32767 min=-32767></td></tr>
+		<tr><td colspan=4><hr></td></tr>
+		<tr><td align=right>Width:</td><td><input type=number name="layerwidth" value=1 max=1023 min=1></td><td align=right>Height:</td><td><input type=number name="layerheight" value=1 max=1023 min=1></td></tr>
+		<tr><td colspan=4 align=center>
+			<input type=button class="onoff" name="repeatx" value="Repeat X">
+			<input type=button class="onoff" name="repeaty" value="Repeat Y">
+			<input type=button class="onoff" name="limitvr" value="Limit visible region">
+		</td></tr>
+		<tr><td colspan=4><hr></td></tr>
+		<tr><td colspan=3 align=right>
+			<input type=button class="onoff" name="texturedenabled" value="Textured mode">
+			<input type=button class="onoff" name="stars" value="Parallax stars">
+		Color:</td><td>
+			<div id="texturedcolor" class="pickColor">rgb(0, 0, 0)</div>
+		</td></tr>
+		<tr><td colspan=4 class="buttonRow"><input type=button value="   Ok   " name="submitButton"> <input type=button value="Cancel" onclick="hidePopup();"></td></tr>
+	</table>
+</div>
+</form>
+<form name="selecteventform">
+<div id="selectevent">
+	<table cellspacing=0>
+		<tr></tr>
+		<tr class="buttonRow">
+			<td style="border-right: 1px solid #AAA;">
+				<input type=search name="eventfilter" placeholder="Filter...">
+			</td>
+			<td style="border-right: 1px solid #AAA;">
+				<select name="listtype">
+					<option>Tree-structure</option>
+					<option>Sort by name</option>
+					<option>Sort by id</option>
+				</select>
+			</td>
+			<th align=center>Select event</th>
+		</tr>
+		<tr>
+			<td style="padding: 0px;" colspan=2 valign=top id="eventlist"></td>
+			<td valign=bottom id="selecteventparameters"></td>
+		</tr>
+		<tr class="buttonRow">
+			<td style="border-right: 1px solid #AAA; text-align: right;">
+			<input type=button class="onoff" value="Illuminate surroundings" name="illuminate">
+			<input type=button class="onoff" value="Generator" name="generator"></td>
+			<td style="border-right: 1px solid #AAA;" width=1><select name="eventType">
+				<option style="background-color: #FFF;">Always</option>
+				<option style="background-color: #FF0;">Easy only</option>
+				<option style="background-color: #F00;">Hard only</option>
+				<option style="background-color: #F0F;">Multiplayer only</option>
+			</select></td>
+			<td align=right><input type=button value="   Ok   " onclick="hidePopup(true);"><input type=button value="Cancel" onclick="hidePopup();"></td>
+		</tr>
+	</table>
+</div>
+</form>
+
+<form name="animpropertiesform">
+<input type=hidden name="animID">
+<div id="animproperties">
+	<table cellspacing=0 cellpadding=3>
+		<tr><th colspan=2 align=center>Animation properties</th></tr>
+		<tr><td colspan=2><input type=range min=0 max=70 step=1 value=10 style="width: 350px" name="animSpeedSlider"><input type=number min=0 max=70 step=1 value=10 name="animSpeedInput"> fps</td></tr>
+		<tr><td align=right>Amount of frames to wait between two animation cycles:</td><td><input type=number min=0 max=27000 step=1 value=0 name="animFrameWait">
+		<tr><td align=right>Random adder amplitude for frame wait:</td><td><input type=number min=0 max=13500 step=1 value=0 name="animRandomAdder">
+		<tr><td align=right>Amount of frames to wait between Ping-Pong cycle:</td><td><input type=number min=0 max=27000 step=1 value=0 name="animPingPongWait">
+		<tr><td colspan=2 class="buttonRow" style="text-align: right;">
+			<input type=button value="   Ok   " onclick="hidePopup(true);"><input type=button value="Cancel" onclick="hidePopup();">
+			&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+			<input type=button class="onoff" value="Ping-Pong Animation" name="animPingPong">
+		</td></tr>
+	</table>
+</div>
+</form>
+
+<!-- Shaders -->
+<script type="text/x-glsl-es-frag" id="texbgfs">
+
+	uniform vec2 resolution;
+	uniform float time;
+	uniform sampler2D texture;
+
+	void main(void) {
+		vec2 p = -1.0 + 2.0 * gl_FragCoord.xy / resolution.xy;
+		vec2 uv;
+		
+		uv.y = .25/abs(p.y);
+		
+		if(p.y < 0.0) {
+			uv.y = -.25/abs(p.y);
+		}
+		uv.x = .3*p.x/abs(p.y);
+		
+		gl_FragColor = vec4(texture2D(texture,uv).xyz, 1.0);
+	}
+</script>
+<script type="text/x-glsl-es-vert" id="texbgvs">
+	attribute vec3 position;
+	
+	void main() {
+		gl_Position = vec4( position, 1.0 );
+	}
+</script>
+
+<!-- Scripts -->
+<script src="DataView.js"></script>
+<script src="level.function.js"></script>
+<script src="menubar.js"></script>
+<script src="popup.js"></script>
+<script src="colorpicker.js"></script>
+<script src="JCSini.js"></script>
+<script src="eventTree.js"></script>
+<script src="jjfont/jjfont.js"></script>
+<script src="contextmenu.js"></script>
+<script src="saveAs.js"></script>
+<!--<script src="socket.io/socket.io.js"></script>-->
+<script src="objectanim.js"></script>
+<script src="node/collab.js"></script>
+<script src="texbg.js"></script>
+<script src="main.js"></script>
+
+</body>
+</html>
+
+
