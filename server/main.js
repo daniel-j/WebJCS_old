@@ -96,6 +96,7 @@ var WebJCS = (function (global, undefined) {
 		return '';
 	};
 	
+	
 	var contentSection = global.document.getElementById('content');
 	var tilesetdiv = global.document.getElementById('tilesetdiv');
 	var layerdiv = global.document.querySelector("#layerdiv");
@@ -104,6 +105,7 @@ var WebJCS = (function (global, undefined) {
 	animsdrag.isDragging = false;
 	var animsdiv = global.document.querySelector("#animsdiv");
 	var animscanvas = global.document.querySelector("#animscanvas");
+	var removeAnimFrame = global.document.querySelector("#removeAnimFrame");
 	var moveAnimUp = global.document.querySelector("#moveAnimUp");
 	var moveAnimDown = global.document.querySelector("#moveAnimDown");
 	var parallaxdrag = global.document.querySelector("#parallaxdrag");
@@ -141,6 +143,13 @@ var WebJCS = (function (global, undefined) {
 	global.document.getElementById('darkBgColorPicker').textContent = darkBgColor;
 	var fpsSpan = global.document.getElementById('fpsSpan');
 	var fps = 0;
+	var stats = new Stats();
+	stats.domElement = stats.getDomElement();
+	stats.domElement.style.position = 'absolute';
+	stats.domElement.style.right = '0px';
+	stats.domElement.style.bottom = '0px';
+	stats.domElement.style.zIndex = '0';
+	parallaxdiv.appendChild(stats.domElement);
 	var eventPointers = {
 		230: 240,
 		/*95: 234,
@@ -344,17 +353,23 @@ var WebJCS = (function (global, undefined) {
 	var tile_url = "", mask_url = "";
 	var toggleMask = global.document.querySelector("#toggleMask");
 	var toggleEvents = global.document.querySelector("#toggleEvents");
+	var saveParallaxBtn = global.document.querySelector("#saveparallax");
 	var toggleParallaxEvents = global.document.querySelector("#toggleParallaxEvents");
+	var toggleTexturedBg = global.document.getElementById('toggleTexturedBg');
 	var toggleAnimMask = global.document.querySelector("#toggleAnimMask");
 	var showLayerMask = false;
 	var showLayerEvents = true;
 	var showParallaxEvents = true;
+	var showTexturedBg = true;
 	var showAnimMask = false;
 	var diffColors = ["white", "yellow", "red", "#F0F"];
 	var JCSini;
 	var ANIMS = false;
 	var undoStack = [];
 	var redoStack = [];
+	
+	var toggleTileCacheVar = localStorage['WebJCS_toggleTileCache'] === '1';
+	var toggleEventLinksVar = localStorage['WebJCS_toggleEventLinks'] === '1';
 	
 	var handleUndoRedo = function (newPart, isRedo) {
 		if(socket && socket.readyState === 1) {
@@ -545,11 +560,13 @@ var WebJCS = (function (global, undefined) {
 					toggleTileCache.set(localStorage['WebJCS_toggleTileCache'] === '1');
 					toggleTileCache.addEventListener('click', function () {
 						localStorage['WebJCS_toggleTileCache'] = toggleTileCache.get()? '1' : '0';
+						toggleTileCacheVar = toggleTileCache.get();
 					}, false);
 					var toggleEventLinks = global.document.getElementById('toggleEventLinks');
 					toggleEventLinks.set(localStorage['WebJCS_toggleEventLinks'] !== '0');
 					toggleEventLinks.addEventListener('click', function () {
 						localStorage['WebJCS_toggleEventLinks'] = toggleEventLinks.get()? '1' : '0';
+						toggleEventLinksVar = toggleEventLinks.get();
 					}, false);
 				}/*, icon: 'HTML5_Performance_16'*/}
 			]
@@ -1919,7 +1936,7 @@ var WebJCS = (function (global, undefined) {
 		setTimeout(function () {
 			updateDynamicTileCache();
 		}, 3*1000);
-		if(localStorage['WebJCS_toggleTileCache'] !== '1') return;
+		if(!toggleTileCacheVar) return;
 		var isTSF = false;
 		var version = isTSF?0x203:0x202;
 		var staticTiles = (isTSF?4096:1024) - J2L.ANIMS.length;
@@ -2465,6 +2482,50 @@ var WebJCS = (function (global, undefined) {
 			}
 		};
 	};
+	var delAnimFrame = function () {
+		if(animSelection !== false && animSelection[1] < J2L.ANIMS.length && animSelection[0]-1 < J2L.ANIMS[animSelection[1]].Frames) {
+			if(animSelection[0] > 0) {
+				J2L.ANIMS[animSelection[1]].Frames-=1;
+				J2L.ANIMS[animSelection[1]].Tiles.splice(animSelection[0]-1, 1);
+				if(socket && socket.readyState === 1) {
+					sendUpdate({
+						what: 'anims',
+						type: 'delFrame',
+						anim: animSelection[1],
+						frame: animSelection[0]-1
+					});
+				}
+			}
+			if(animSelection[0] === 0 || J2L.ANIMS[animSelection[1]].Frames === 0) {
+				J2L.ANIMS.splice(animSelection[1], 1);
+				if(socket && socket.readyState === 1) {
+					sendUpdate({
+						what: 'anims',
+						type: 'delAnim',
+						anim: animSelection[1],
+					});
+				}
+				if(animSelection[1] > J2L.ANIMS.length) {
+					animSelection[1] = J2L.ANIMS.length;
+				}
+				/*if(animSelection[1] === J2L.ANIMS.length) {
+					var x, y;
+					for(x=0; x < selectedTiles.length; x+=1) {
+						for(y=0; y < selectedTiles[0].length; y+=1) {
+							if(selectedTiles[x][y].animated === true && selectedTiles[x][y].id === animSelection[1]) {
+								selectedTiles[x][y] = {'id': 0, 'animated': false, 'flipped': false, 'event': 0};
+							}
+						}
+					}
+				}*/
+			}
+			if(J2L.ANIMS.length === 0) {
+				animSelection = [0, 0];
+			}
+			return true;
+		}
+		return false;
+	};
 	var mousedowntileset = function (e) {
 		var tilesetbounding = tilesetcanvas.getBoundingClientRect();
 		var offsetX = e.pageX /*- tilesetbounding.left*/;
@@ -2533,7 +2594,7 @@ var WebJCS = (function (global, undefined) {
 		var offsetX = e.pageX - bounding.left;
 		var offsetY = e.pageY - bounding.top;
 		parallaxcanvas.isDragging = true;
-		
+		mousedownscroll = [scrollbars.layers.scroll[0], scrollbars.layers.scroll[1]];
 		var w = parallaxdiv.offsetWidth;
 		var h = parallaxdiv.offsetHeight;
 		chatInput.blur();
@@ -2603,6 +2664,12 @@ var WebJCS = (function (global, undefined) {
 			redraw(0, true);
 			//requestAnimFrame(function () {redraw(0, true);}, layercanvas);
 			chatContent.scrollTop = chatContent.scrollHeight;
+		}
+		else if(parallaxcanvas.isDragging) {
+			if(mousedownpos && mousedownscroll) {
+				scrollbars['layers'].scroll[0] = mousedownscroll[0] + (mousedownpos[0] - mousepos[0])*zoomlevel;
+				scrollbars['layers'].scroll[1] = mousedownscroll[1] + (mousedownpos[1] - mousepos[1])*zoomlevel;
+			}
 		}
 		else if(chatResizer.isDragging) {
 			chatPanel.style.width = Math.min(Math.max(chatResizer.offsetWidth, inW - X + chatResizer.offsetWidth/2), inW)+"px";
@@ -2893,52 +2960,14 @@ var WebJCS = (function (global, undefined) {
 			holdingCtrlKey = true;
 		}
 		else if(kc === 46) {
-			if(mousetarget === animscanvas && animSelection !== false && animSelection[1] < J2L.ANIMS.length && animSelection[0]-1 < J2L.ANIMS[animSelection[1]].Frames) {
-				if(animSelection[0] > 0) {
-					J2L.ANIMS[animSelection[1]].Frames-=1;
-					J2L.ANIMS[animSelection[1]].Tiles.splice(animSelection[0]-1, 1);
-					if(socket && socket.readyState === 1) {
-						sendUpdate({
-							what: 'anims',
-							type: 'delFrame',
-							anim: animSelection[1],
-							frame: animSelection[0]-1
-						});
-					}
-				}
-				if(animSelection[0] === 0 || J2L.ANIMS[animSelection[1]].Frames === 0) {
-					J2L.ANIMS.splice(animSelection[1], 1);
-					if(socket && socket.readyState === 1) {
-						sendUpdate({
-							what: 'anims',
-							type: 'delAnim',
-							anim: animSelection[1],
-						});
-					}
-					if(animSelection[1] > J2L.ANIMS.length) {
-						animSelection[1] = J2L.ANIMS.length;
-					}
-					/*if(animSelection[1] === J2L.ANIMS.length) {
-						var x, y;
-						for(x=0; x < selectedTiles.length; x+=1) {
-							for(y=0; y < selectedTiles[0].length; y+=1) {
-								if(selectedTiles[x][y].animated === true && selectedTiles[x][y].id === animSelection[1]) {
-									selectedTiles[x][y] = {'id': 0, 'animated': false, 'flipped': false, 'event': 0};
-								}
-							}
-						}
-					}*/
-				}
-				if(J2L.ANIMS.length === 0) {
-					animSelection = [0, 0];
-				}
+			if(mousetarget === animscanvas && delAnimFrame()) {
 				e.preventDefault();
 			}
 		}
 		else if(kc === 66) {
 			if(mousetarget === layercanvas && !holdingBKey) {
-				var offx = Math.floor((mousepos[0] - layerbounding.left + scrollbars.layers.scroll[0])/32);
-				var offy = Math.floor((mousepos[1] - layerbounding.top + scrollbars.layers.scroll[1])/32);
+				var offx = Math.floor((mousepos[0] - layerbounding.left + scrollbars.layers.scroll[0])/(32*zoomlevel));
+				var offy = Math.floor((mousepos[1] - layerbounding.top + scrollbars.layers.scroll[1])/(32*zoomlevel));
 				if(offx < J2L.LEVEL_INFO.LayerWidth[currentLayer] && offy < J2L.LEVEL_INFO.LayerHeight[currentLayer]) {
 					isBSelecting = !isBSelecting;
 					if(isBSelecting) {
@@ -3411,7 +3440,7 @@ var WebJCS = (function (global, undefined) {
 				}
 			}
 		}
-		if(localStorage['WebJCS_toggleTileCache'] === '1') {
+		if(toggleTileCacheVar) {
 			lc.save();
 			var realWidth = Math.ceil(lw/4);
 			for(x = offx-(offx%4); x <= offx+offw; x+=1) {
@@ -3443,7 +3472,7 @@ var WebJCS = (function (global, undefined) {
 			lc.restore();
 		}
 		
-		if(showLayerEvents && l === 3 && localStorage['WebJCS_toggleEventLinks'] !== '0') {
+		if(showLayerEvents && l === 3 && toggleEventLinksVar) {
 			lc.lineWidth = 1;
 			lc.globalAlpha = 0.5;
 			for(var i in eventPointerCache) {
@@ -3490,9 +3519,9 @@ var WebJCS = (function (global, undefined) {
 			lc.globalCompositeOperation = "lighter";
 			lc.fillStyle = "rgb(40, 40, 40)";
 			lc.strokeStyle = "rgb(70, 70, 70)";
-			lc.lineWidth = 3;
+			lc.lineWidth = 3*zoomlevel;
 			lc.fillRect(Math.floor(selX*32*zoomlevel-scrollX), Math.floor(selY*32*zoomlevel-scrollY), selW*32*zoomlevel, selH*32*zoomlevel);
-			lc.strokeRect(Math.floor(selX*32*zoomlevel-scrollX)-1.5, Math.floor(selY*32*zoomlevel-scrollY)-1.5, selW*32*zoomlevel+3, selH*32*zoomlevel+3);
+			lc.strokeRect(Math.floor(selX*32*zoomlevel-scrollX)-lc.lineWidth/2, Math.floor(selY*32*zoomlevel-scrollY)-lc.lineWidth/2, selW*32*zoomlevel+lc.lineWidth, selH*32*zoomlevel+lc.lineWidth);
 			lc.restore();
 		}
 		else if(mousepos && mousetarget === layercanvas) {
@@ -3509,8 +3538,8 @@ var WebJCS = (function (global, undefined) {
 			lc.fillStyle = "rgb(255, 255, 255)";
 			if (offx < lw*32*zoomlevel && offy < lh*32*zoomlevel) {
 				lc.strokeStyle = "rgba(255, 255, 255, 0.25)";
-				lc.lineWidth = 3;
-				lc.strokeRect(-1.5, -1.5, maxw*32*zoomlevel+3, maxh*32*zoomlevel+3);
+				lc.lineWidth = 3*zoomlevel;
+				lc.strokeRect(-lc.lineWidth/2, -lc.lineWidth/2, maxw*32*zoomlevel+lc.lineWidth, maxh*32*zoomlevel+lc.lineWidth);
 				lc.lineWidth = 1;
 			}
 			//lc.fillRect(0, 0, maxw*32*zoomlevel, maxh*32*zoomlevel);
@@ -3585,7 +3614,7 @@ var WebJCS = (function (global, undefined) {
 		var layeroffx, layeroffy;
 		
 		var isTextured = (J2L.LEVEL_INFO.LayerProperties[7] & 8) >> 3 === 1;
-		var showTexture = isTextured && texturedBackground;
+		var showTexture = isTextured && texturedBackground && showTexturedBg;
 		
 		pxc.fillStyle = showTexture? 'black' : lightBgColor;
 		pxc.fillRect(0, 0, w, h);
@@ -3596,8 +3625,8 @@ var WebJCS = (function (global, undefined) {
 		var scrollX = Math.max(Math.min((scrollbars.layers.scroll[0]/zoomlevel+(layercanvas.width/zoomlevel)/2-w/2)/J2L.LEVEL_INFO.LayerXSpeed[currentLayer], J2L.LEVEL_INFO.LayerWidth[3]*32-w), 0) || 0;
 		var scrollY = Math.max(Math.min((scrollbars.layers.scroll[1]/zoomlevel+(layercanvas.height/zoomlevel)/2-h/2)/J2L.LEVEL_INFO.LayerYSpeed[currentLayer], J2L.LEVEL_INFO.LayerHeight[3]*32-h), 0) || 0;
 		if(mousedownpos && mousepos && parallaxcanvas.isDragging) {
-			scrollX -= mousepos[0] - mousedownpos[0];
-			scrollY -= mousepos[1] - mousedownpos[1];
+			//scrollX -= mousepos[0] - mousedownpos[0];
+			//scrollY -= mousepos[1] - mousedownpos[1];
 		}
 		
 		offw = Math.ceil(w/32)+1;
@@ -3746,8 +3775,8 @@ var WebJCS = (function (global, undefined) {
 		}
 		
 		
-		pxc.strokeStyle = 'rgba(255, 255, 255, 0.5)';
-		pxc.strokeRect(Math.floor(w/2-320)+0.5, Math.floor(h/2-240)+0.5, 640, 480);
+		//pxc.strokeStyle = 'rgba(255, 255, 255, 0.5)';
+		//pxc.strokeRect(Math.floor(w/2-320)+0.5, Math.floor(h/2-240)+0.5, 640, 480);
 		//pxc.strokeStyle = 'rgba(255, 255, 255, 0.5)';
 		//pxc.strokeRect(Math.round(w/2-160)+0.5, Math.round(h/2-120)+0.5, 320, 240);
 		
@@ -4003,6 +4032,7 @@ var WebJCS = (function (global, undefined) {
 		frameOffset+=1;
 		if(!forced)
 			requestAnimFrame(redraw, layercanvas);
+		stats.update();
 	};
 	
 	var changeTileset = function (si, auto) {
@@ -4936,11 +4966,34 @@ var WebJCS = (function (global, undefined) {
 		else this.className = 'selected';
 		showLayerEvents = !isOn;
 	}, false);
+	saveParallaxBtn.addEventListener('click', function (e) {
+		var saveCanvas = global.document.createElement('canvas');
+		saveCanvas.width = parallaxcanvas.width;
+		saveCanvas.height = parallaxcanvas.height;
+		var savec = saveCanvas.getContext('2d');
+		if(texturedBackground) {
+			savec.drawImage(texturedBackground.canvas, 0, 0, saveCanvas.width, saveCanvas.height);
+			var grad = savec.createLinearGradient(0, 0, 0, saveCanvas.height);
+			grad.addColorStop(0, 'transparent');
+			grad.addColorStop(0.45, 'rgb('+texturedBackground.color[0]+', '+texturedBackground.color[1]+', '+texturedBackground.color[2]+')');
+			grad.addColorStop(0.55, 'rgb('+texturedBackground.color[0]+', '+texturedBackground.color[1]+', '+texturedBackground.color[2]+')');
+			grad.addColorStop(1, 'transparent');
+			savec.fillStyle = grad;
+			savec.fillRect(0, 0, saveCanvas.width, saveCanvas.height);
+		}
+		savec.drawImage(parallaxcanvas, 0, 0);
+		global.open(saveCanvas.toDataURL('image/png'));
+	}, false);
 	toggleParallaxEvents.addEventListener("click", function (e) {
 		var isOn = this.className === 'selected';
 		if(isOn) this.className = '';
 		else this.className = 'selected';
 		showParallaxEvents = !isOn
+	}, false);
+	toggleTexturedBg.addEventListener('click', function (e) {
+		var isOn = this.classList.contains('selected');
+		this.classList.toggle('selected');
+		showTexturedBg = !isOn
 	}, false);
 	toggleAnimMask.addEventListener("click", function (e) {
 		var isOn = this.className === 'selected';
@@ -4952,6 +5005,7 @@ var WebJCS = (function (global, undefined) {
 		pxLightOutput.textContent = this.value;
 		pxLightLevel = +this.value;
 	}, false);
+	removeAnimFrame.addEventListener('click', delAnimFrame, false);
 	moveAnimUp.addEventListener("click", moveAnim(-1), false);
 	moveAnimDown.addEventListener("click", moveAnim(1), false);
 	layercanvas.addEventListener("contextmenu", function(e) {e.preventDefault();return false;}, false);
@@ -5744,8 +5798,8 @@ var WebJCS = (function (global, undefined) {
 								break;
 							
 							case 0x09: // Create a blank level
-								scrollbars.layers.scroll = [0, 0];
-								changeLayer(3);
+								//scrollbars.layers.scroll = [0, 0];
+								//changeLayer(3);
 								getCurrentLevel();
 								break;
 						}

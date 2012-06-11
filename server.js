@@ -629,7 +629,7 @@ var ANIM_STRUCT =
 	"CFPS/"+
 	"CFrames";
 
-iniparse.parse('./settings.ini', function (err, settings) {
+iniparse.parse(path.join(__dirname, 'settings.ini'), function (err, settings) {
 	var port = 8000;
 	var filepaths = ["C:\\Games\\Jazz2\\"];
 	var runcmd = "";
@@ -665,7 +665,7 @@ iniparse.parse('./settings.ini', function (err, settings) {
 		runcmd = settings.paths.run;
 		chromepath = settings.paths.chrome;
 		autoclose = settings.server.autoclose.toLowerCase() === 'true';
-		serverPassword = settings.server.password.trim().substring(0, 32);
+		serverPassword = typeof settings.server.password === 'string'? settings.server.password.trim().substring(0, 32) : '';
 	}
 	
 	for(var i=2; i < process.argv.length; i+=1) {
@@ -1133,12 +1133,13 @@ iniparse.parse('./settings.ini', function (err, settings) {
 			}
 		}
 		else {
-			fs.readFile('./server'+url.pathname, function (err, data) {
+			var fullpath = path.join(__dirname, 'server'+url.pathname);
+			fs.readFile(fullpath, function (err, data) {
 				if(err) {
 					notfound();
 				}
 				else {
-					fs.stat('./server'+url.pathname, function (err, stats) {
+					fs.stat(fullpath, function (err, stats) {
 						var if_modified_since = req.headers['if-modified-since'];
 						var normal = true;
 						if(if_modified_since) {
@@ -1177,7 +1178,8 @@ iniparse.parse('./settings.ini', function (err, settings) {
 		if(chromepath.length > 0) {
 			child_process.exec('"'+path.normalize(chromepath)+'" -app=http://localhost:'+port+'/', function (err) {
 				if(err) {
-					console.warn("Could not start chrome:\n"+err);
+					console.warn("Could not start chrome:\n",err);
+					console.log('Chrome command: '+'"'+path.normalize(chromepath)+'" -app=http://localhost:'+port+'/');
 					console.log("You might want to manually open the app at http://localhost:"+port+"/");
 				}
 			});
@@ -2007,6 +2009,7 @@ iniparse.parse('./settings.ini', function (err, settings) {
 										socket.sendBytes(packet);
 									}, true));*/
 									consoleChat('<em><strong>'+socket.user.username+'</strong> created a new level</em>');
+									broadcast(new Buffer([0x08, 0x09]));
 									break;
 							}
 							broadcast(packet, socket);

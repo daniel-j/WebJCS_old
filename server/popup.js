@@ -51,12 +51,15 @@ var popup = function (global, undefined) {
 			//popups[name].node.innerHTML = popups[name].content; // Force redraw
 			popups[name].node.style.visibility = 'visible';
 			popups[name].node.style.opacity = '1';
+			popups[name].node.style.display = 'block';
 			currentPopup = name;
 		},
 		hide: function (param) {
 			if(currentPopup===false) return;
 			popups[currentPopup].node.style.opacity = '0';
 			popups[currentPopup].node.style.visibility = 'hidden';
+			popups[currentPopup].node.style.display = 'none';
+			
 			if(param !== undefined && popups[currentPopup].callback !== undefined) {
 				popups[currentPopup].callback(param);
 			}

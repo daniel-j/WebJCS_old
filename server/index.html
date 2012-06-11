@@ -2,6 +2,7 @@
 <html>
 <head>
 	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="chrome=1">
 	<title>Jazz Creation Station</title>
 	<link rel="stylesheet" href="menubar.css">
 	<link rel="stylesheet" href="popup.css">
@@ -47,6 +48,7 @@
 			<nav class="toolbar">
 				<table width=100% cellspacing=0 cellpadding=0><tr>
 					<td id="animsdrag"><b>Animations</b></td>
+					<td width=21><button id="removeAnimFrame"><b>x</b></button></td>
 					<td width=1><button id="moveAnimUp"><b>/\</b></button></td>
 					<td width=21><button id="moveAnimDown"><b>\/</b></button></td>
 					<td width=1><button id="toggleAnimMask">Mask</button></td>
@@ -77,7 +79,9 @@
 					<td width=1 valign=top id="animProgress"></td>
 					<td width=1 valign=top id="pxLightOutput">100</td>
 					<td width=1 valign=top><input type=range min=0 max=100 step=1 value=100 id="parallaxLight"></td>
+					<td width=1 valign=top><button><img src="media/icons/screenshot.png" title="Save Parallax View as image" id="saveparallax"></button></td>
 					<td width=1 valign=top><button id="toggleParallaxEvents" class="selected">Events</button></td>
+					<td width=1><button id="toggleTexturedBg" class="selected">Textured</button></td>
 				</tr></table>
 			</nav>
 			<div id="parallaxdiv" style="height: 0px; position: relative;">
@@ -159,7 +163,9 @@
 			<div id="helpstrings">
 				<table height=100% width=100%>
 					<tr><td height=1 width=1>
-						ID: </td><td width=1><select name="helpStringSelect">
+						ID:
+					</td><td width=1>
+						<select name="helpStringSelect">
 							<option>0</option>
 							<option>1</option>
 							<option>2</option>
@@ -212,7 +218,7 @@
 	<tr>
 		<td valign=top width=1><img src="media/icons/JCS.png"></td>
 		<td valign=top>
-		<b>About Jazz Creation Station (WebJCS) v1.3.1</b><br>
+		<b>About Jazz Creation Station (WebJCS) v1.3.2</b><br>
 		<br>
 		The original JCS was written by <a href="http://www.facebook.com/mvdleeuw" target="_blank">Michiel van der Leeuw</a> for <a href="http://epicgames.com/" target="_blank">Epic (Mega)Games</a> during 1996-1998<br><br>
 		WebJCS is written by Daniel J (<a href="http://www.jazz2online.com/user/7540/djazz/" target="_blank">DJazz</a>) during 2009-2011<br>
@@ -368,6 +374,7 @@
 </script>
 
 <!-- Scripts -->
+<script src="Stats.js"></script>
 <script src="DataView.js"></script>
 <script src="level.function.js"></script>
 <script src="menubar.js"></script>

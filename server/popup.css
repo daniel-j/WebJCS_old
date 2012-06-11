@@ -7,6 +7,7 @@
 	background-color: rgba(0, 0, 0, 0.1);
 	visibility: hidden;
 	opacity: 0;
+	display: none;
 	-webkit-transition: opacity .5s ease-in-out;
 	-moz-transition: opacity .5s ease-in-out;
 	/*display: -webkit-box;

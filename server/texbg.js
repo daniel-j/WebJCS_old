@@ -14,6 +14,7 @@
 	fragment_shader = global.document.getElementById( 'texbgfs' ).textContent;
 	
 	var txgrad = global.document.getElementById('texturedGradient');
+	var gradColor = [0, 0, 0];
 	
 	
 	canvas = document.getElementById('texturedCanvas');
@@ -24,11 +25,13 @@
 	
 	// Initialise WebGL
 	
+	var webglOptions = {preserveDrawingBuffer: true};
+	
 	try {
 	
-		gl = canvas.getContext( 'webgl' );
+		gl = canvas.getContext( 'webgl', webglOptions );
 		if(!gl)
-			gl = canvas.getContext( 'experimental-webgl' );
+			gl = canvas.getContext( 'experimental-webgl', webglOptions );
 	
 	} catch( error ) { }
 	
@@ -155,8 +158,10 @@
 	
 	ext.render = render;
 	ext.gradient = txgrad;
+	ext.color = gradColor;
 	ext.changeColor = function (arr) {
 		var r = arr[0], g = arr[1], b = arr[2];
+		gradColor = [r, g, b];
 		txgrad.style.background = "-webkit-gradient(linear, left top, left bottom, color-stop(0%, transparent), color-stop(45%, rgb("+r+","+g+","+b+")), color-stop(55%, rgb("+r+","+g+","+b+")), color-stop(100%, transparent))";
 		//txgrad.style.background = "-webkit-gradient(linear, left top, left bottom, color-stop(0%, transparent), color-stop(45%, #000), color-stop(55%, #000), color-stop(100%, transparent))";
 	};
